@@ -1,0 +1,629 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
+package expression;
+import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+
+/**
+ *
+ * @author ADMIN
+ */
+public class Expression {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+       Scanner sc = new Scanner(System.in);
+        ArrayList<String> transactionLogs = new ArrayList<>();
+
+        String adminUser = "admin";
+        String adminPass = "1234";
+
+        String staffUser = "staff";
+        String staffPass = "1234";
+
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\n==== USER MENU ====");
+            System.out.println("1. Admin");
+            System.out.println("2. Staff");
+            System.out.println("3. Logout");
+
+            System.out.print("Enter role: ");
+
+            if (!sc.hasNextInt()) {
+                System.out.println("Invalid input!");
+                sc.nextLine();
+                continue;
+            }
+
+            int role = sc.nextInt();
+            sc.nextLine();
+
+            if (role == 1) {
+                adminLogin(sc, transactionLogs, adminUser, adminPass);
+            } else if (role == 2) {
+                staffLogin(sc, transactionLogs, staffUser, staffPass);
+            } else if (role == 3) {
+                System.out.println("Logging Out System End!");
+                running = false;
+            } else {
+                System.out.println("Invalid role.");
+            }
+        }
+
+        sc.close();
+    }
+
+    public static void adminLogin(Scanner sc, ArrayList<String> logs,
+                                 String userCorrect, String passCorrect) {
+        while (true) {
+            System.out.print("Enter username: ");
+            String user = sc.nextLine();
+
+            System.out.print("Enter password: ");
+            String pass = sc.nextLine();
+
+            if (user.equals(userCorrect) && pass.equals(passCorrect)) {
+                adminMenu(sc, logs);
+                break;
+            } else {
+                System.out.println("Incorrect! Try again.\n");
+            }
+        }
+    }
+
+    public static void staffLogin(Scanner sc, ArrayList<String> logs,
+                                  String userCorrect, String passCorrect) {
+        while (true) {
+            System.out.print("Enter username: ");
+            String user = sc.nextLine();
+
+            System.out.print("Enter password: ");
+            String pass = sc.nextLine();
+
+            if (user.equals(userCorrect) && pass.equals(passCorrect)) {
+                staffMenu(sc, logs);
+                break;
+            } else {
+                System.out.println("Incorrect! Try again.\n");
+            }
+        }
+    }
+
+    public static void adminMenu(Scanner sc, ArrayList<String> logs) {
+        boolean active = true;
+
+        while (active) {
+            System.out.println("\n==== ADMIN MENU ====");
+            System.out.println("1. Retrieve");
+            System.out.println("2. Edit/Update");
+            System.out.println("3. Delete");
+            System.out.println("4. Logout");
+            System.out.print("Choose: ");
+
+            if (!sc.hasNextInt()) {
+                System.out.println("Invalid input!");
+                sc.nextLine();
+                continue;
+            }
+
+            int choice = sc.nextInt();
+            sc.nextLine();
+
+            if (choice == 1) {
+                retrieveLogs(sc, logs);
+            } else if (choice == 2) {
+                updateLog(sc, logs);
+            } else if (choice == 3) {
+                deleteLog(sc, logs);
+            } else if (choice == 4) {
+                System.out.println("Logging out...");
+                active = false;
+            } else {
+                System.out.println("Invalid choice.");
+            }
+        }
+    }
+
+    public static void staffMenu(Scanner sc, ArrayList<String> logs) {
+        boolean active = true;
+
+        while (active) {
+            System.out.println("\n==== STAFF MENU ====");
+            System.out.println("1. Create Receipt");
+            System.out.println("2. View Transaction");
+            System.out.println("3. Logout");
+            System.out.print("Choose: ");
+
+            if (!sc.hasNextInt()) {
+                System.out.println("Invalid input!");
+                sc.nextLine();
+                continue;
+            }
+
+            int choice = sc.nextInt();
+            sc.nextLine();
+
+            if (choice == 1) {
+                processTransaction(sc, logs);
+            } else if (choice == 2) {
+                retrieveLogs(sc, logs);
+            } else if (choice == 3) {
+                System.out.println("Logging out...");
+                active = false;
+            } else {
+                System.out.println("Invalid choice.");
+            }
+        }
+    }
+
+    public static void retrieveLogs(Scanner sc, ArrayList<String> logs) {
+        if (logs.isEmpty()) {
+            System.out.println("No transactions yet.");
+            return;
+        }
+
+        System.out.println("\n==== TRANSACTION LIST ====");
+        for (int i = 0; i < logs.size(); i++) {
+            System.out.println("Transaction #" + (i + 1));
+            System.out.println(logs.get(i));
+            System.out.println("-------------------------");
+        }
+
+        String name;
+        boolean found;
+
+        while (true) {
+            System.out.print("Enter customer name: ");
+            name = sc.nextLine();
+
+            if (!name.matches("[a-zA-Z ]+")) {
+                System.out.println("Invalid Name! Letters only. Please try again.");
+                continue;
+            }
+
+            found = false;
+            for (String log : logs) {
+                if (log.toLowerCase().contains("customer: " + name.toLowerCase())) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found) break;
+            else System.out.println("No Transaction Found. Try again.");
+        }
+
+        System.out.println("\nTransaction(s) Found:");
+        for (String log : logs) {
+            if (log.toLowerCase().contains(name.toLowerCase())) {
+                System.out.println(log);
+                System.out.println("-------------------------");
+            }
+        }
+    }
+
+    public static void updateLog(Scanner sc, ArrayList<String> logs) {
+        if (logs.isEmpty()) {
+            System.out.println("No logs to update.");
+            return;
+        }
+
+        System.out.println("\n==== TRANSACTION LIST ====");
+        for (int i = 0; i < logs.size(); i++) {
+            System.out.println("Transaction #" + (i + 1));
+            System.out.println(logs.get(i));
+            System.out.println("-------------------------");
+        }
+
+        System.out.print("Enter customer name to update: ");
+        String oldName = sc.nextLine();
+
+        if (!oldName.matches("[a-zA-Z ]+")) {
+            System.out.println("Invalid Name!");
+            return;
+        }
+
+        boolean found = false;
+
+        for (int i = 0; i < logs.size(); i++) {
+            String log = logs.get(i);
+
+            if (log.toLowerCase().contains("customer: " + oldName.toLowerCase())) {
+                System.out.println("\nTransaction Found:");
+                System.out.println(log);
+
+                System.out.print("Enter new customer name: ");
+                String newName = sc.nextLine();
+
+                if (!newName.matches("[a-zA-Z ]+")) {
+                    System.out.println("Invalid New Name!");
+                    return;
+                }
+
+                String updatedLog = log.replaceAll(
+                        "(?i)customer: " + oldName,
+                        "Customer: " + newName
+                );
+
+                logs.set(i, updatedLog);
+
+                System.out.println("Updated: " + "\n" + updatedLog);
+                System.out.println("Customer name updated successfully!");
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            System.out.println("No Transaction Found");
+        }
+    }
+
+    public static void deleteLog(Scanner sc, ArrayList<String> logs) {
+        if (logs.isEmpty()) {
+            System.out.println("No logs to delete.");
+            return;
+        }
+
+        System.out.println("\n==== TRANSACTION LIST ====");
+        for (int i = 0; i < logs.size(); i++) {
+            System.out.println("Transaction #" + (i + 1));
+            System.out.println(logs.get(i));
+            System.out.println("-------------------------");
+        }
+
+        String name;
+        boolean found;
+        while (true) {
+            System.out.print("Enter customer name to delete: ");
+            name = sc.nextLine();
+
+            if (!name.matches("[a-zA-Z ]+")) {
+                System.out.println("Invalid Name! Letters only. Please try again.");
+                continue;
+            }
+
+            found = false;
+            for (String log : logs) {
+                if (log.toLowerCase().contains("customer: " + name.toLowerCase())) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found) break;
+            else System.out.println("No Transaction Found");
+        }
+
+        for (int i = 0; i < logs.size(); i++) {
+            String log = logs.get(i);
+
+            if (log.toLowerCase().contains("customer: " + name.toLowerCase())) {
+                System.out.println("\nTransaction Found:");
+                System.out.println(log);
+
+                logs.remove(i);
+
+                System.out.println("Deleted Successful");
+                found = true;
+                break; // remove only first match
+            }
+        }
+
+        if (!found) {
+            System.out.println("No Transaction Found");
+        }
+    }
+
+    public static void processTransaction(Scanner sc, ArrayList<String> logs) {
+        System.out.println("\n============ J&R HARDWARE ===========");
+
+        String customerName;
+        while (true) {
+            System.out.print("Enter customer name: ");
+            customerName = sc.nextLine();
+
+            if (customerName.matches("[a-zA-Z ]+")) break;
+            else System.out.println("Invalid, Try Again!");
+        }
+
+        ArrayList<String> validItems = new ArrayList<>();
+        validItems.add("Hammer"); validItems.add("Nails"); validItems.add("Screwdriver");
+        validItems.add("Paint"); validItems.add("Saw"); validItems.add("Paint brush");
+        validItems.add("Paint roller"); validItems.add("PVC pipe"); validItems.add("Electrical wire");
+        validItems.add("Light bulb"); validItems.add("Extension wire"); validItems.add("Tape measure");
+        validItems.add("Socket wrench"); validItems.add("Sandpaper"); validItems.add("Padlock");
+        validItems.add("Electrical tape");
+
+        System.out.println("\nAVAILABLE ITEMS:");
+        for (String item : validItems) System.out.println(item);
+
+        String serialCode = "CD-" + (logs.size() + 1000);
+
+        ArrayList<String> items = new ArrayList<>();
+        ArrayList<Double> prices = new ArrayList<>();
+        ArrayList<Integer> quantities = new ArrayList<>();
+
+        double total = 0;
+
+        while (true) {
+            // Input item
+            String item;
+            while (true) {
+                System.out.print("Enter item: ");
+                item = sc.nextLine();
+                boolean exists = false;
+                for (String valid : validItems) {
+                    if (valid.equalsIgnoreCase(item)) {
+                        item = valid;
+                        exists = true;
+                        break;
+                    }
+                }
+                if (exists) break;
+                else System.out.println("Invalid Item, Try Again!");
+            }
+
+            // Input price
+            double price;
+            while (true) {
+                System.out.print("Enter price: ");
+                if (sc.hasNextDouble()) {
+                    price = sc.nextDouble();
+                    if (price > 0) break;
+                    else System.out.println("Incorrect Price, Try Again!");
+                } else {
+                    System.out.println("Invalid, Try Again!");
+                    sc.next();
+                }
+            }
+
+            // Input quantity
+            int qty;
+            while (true) {
+                System.out.print("Enter quantity: ");
+                if (sc.hasNextInt()) {
+                    qty = sc.nextInt();
+                    if (qty > 0) break;
+                    else System.out.println("Invalid, Try Again!");
+                } else {
+                    System.out.println("Invalid, Try Again!");
+                    sc.next();
+                }
+            }
+            sc.nextLine();
+
+            items.add(item);
+            prices.add(price);
+            quantities.add(qty);
+            total += price * qty;
+
+            // Continue adding items?
+            String choice;
+            while (true) {
+                System.out.print("Add another item? (y/n): ");
+                choice = sc.nextLine();
+                if (choice.equalsIgnoreCase("y") || choice.equalsIgnoreCase("n")) break;
+                else System.out.println("Invalid, Try Again!");
+            }
+            if (choice.equalsIgnoreCase("n")) break;
+        }
+
+        // Date and Time
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+        DateTimeFormatter tf = DateTimeFormatter.ofPattern("hh:mm:ss a");
+
+        // Build receipt
+        StringBuilder log = new StringBuilder();
+        log.append("Date: ").append(date.format(df)).append("\n");
+        log.append("Time: ").append(time.format(tf)).append("\n");
+        log.append("Serial Code: ").append(serialCode).append("\n");
+        log.append("Customer: ").append(customerName).append("\n");
+
+        for (int i = 0; i < items.size(); i++) {
+            double subtotal = prices.get(i) * quantities.get(i);
+            log.append(items.get(i)).append(" | ")
+               .append(prices.get(i)).append(" x ")
+               .append(quantities.get(i)).append(" = ")
+               .append(subtotal).append("\n");
+        }
+        log.append("TOTAL: ").append(total);
+
+        // Edit receipt internally
+        log = editReceipt(sc, log, customerName, items, prices, quantities, validItems);
+
+        // Print final receipt cleanly
+       System.out.println("\n============== RECEIPT ==============");
+        System.out.println(log.toString());
+
+        // Save transaction
+        logs.add(log.toString());
+
+        System.out.println("=====================================");
+        System.out.println("       THANK YOU FOR PURCHASING       ");
+        System.out.println("=====================================");
+        System.out.println("Transaction saved!");
+    }
+
+    // ================== EDIT RECEIPT ==================
+   // ================== EDIT RECEIPT ==================
+public static StringBuilder editReceipt(Scanner sc, StringBuilder log, String customerName,
+                                       ArrayList<String> items, ArrayList<Double> prices,
+                                       ArrayList<Integer> quantities, ArrayList<String> validItems) {
+
+    while (true) {
+        System.out.print("Do you want to edit this receipt? (y/n): ");
+        String editChoice = sc.nextLine().trim();
+        if (editChoice.equalsIgnoreCase("n")) {
+            break;
+        } else if (!editChoice.equalsIgnoreCase("y")) {
+            System.out.println("Invalid input! Please enter 'y' or 'n'.");
+            continue;
+        }
+
+        System.out.println("\nWhat do you want to edit?");
+        System.out.println("1. Customer Name");
+        System.out.println("2. Replace Item");
+        System.out.println("3. Edit Price");
+        System.out.println("4. Edit Quantity");
+        System.out.print("Choice: ");
+
+        int choice;
+        if (sc.hasNextInt()) {
+            choice = sc.nextInt();
+            sc.nextLine(); // consume newline
+        } else {
+            System.out.println("Invalid input!");
+            sc.nextLine();
+            continue;
+        }
+
+        switch (choice) {
+            case 1:
+                // Edit customer name
+                System.out.print("Enter new customer name: ");
+                String newName = sc.nextLine();
+                if (newName.matches("[a-zA-Z ]+")) {
+                    customerName = newName;
+                    System.out.println("Customer name updated successfully!");
+                } else {
+                    System.out.println("Invalid name!");
+                }
+                break;
+
+            case 2:
+                // Replace item
+                System.out.print("Enter item to replace: ");
+                String oldItem = sc.nextLine();
+                int oldIndex = -1;
+                for (int i = 0; i < items.size(); i++) {
+                    if (items.get(i).equalsIgnoreCase(oldItem)) {
+                        oldIndex = i;
+                        break;
+                    }
+                }
+                if (oldIndex == -1) {
+                    System.out.println("Item to replace not found in receipt!");
+                    break;
+                }
+
+                System.out.print("Enter new item: ");
+                String newItem = sc.nextLine();
+                if (!validItems.contains(newItem)) {
+                    System.out.println("Invalid Item! Must be one of the valid items.");
+                    break;
+                }
+
+                items.set(oldIndex, newItem);
+                System.out.println("Item replaced successfully!");
+                break;
+
+            case 3:
+                // Edit price
+                System.out.print("Enter item to edit price: ");
+                String priceItem = sc.nextLine();
+                int priceIndex = -1;
+                for (int i = 0; i < items.size(); i++) {
+                    if (items.get(i).equalsIgnoreCase(priceItem)) {
+                        priceIndex = i;
+                        break;
+                    }
+                }
+                if (priceIndex != -1) {
+                    System.out.print("Enter new price: ");
+                    if (sc.hasNextDouble()) {
+                        double newPrice = sc.nextDouble();
+                        sc.nextLine();
+                        if (newPrice > 0) {
+                            prices.set(priceIndex, newPrice);
+                            System.out.println("Price updated successfully!");
+                        } else {
+                            System.out.println("Price must be greater than 0.");
+                        }
+                    } else {
+                        System.out.println("Invalid price!");
+                        sc.nextLine();
+                    }
+                } else {
+                    System.out.println("Item not found!");
+                }
+                break;
+
+            case 4:
+                // Edit quantity
+                System.out.print("Enter item to change quantity: ");
+                String qtyItem = sc.nextLine();
+                int qtyIndex = -1;
+                for (int i = 0; i < items.size(); i++) {
+                    if (items.get(i).equalsIgnoreCase(qtyItem)) {
+                        qtyIndex = i;
+                        break;
+                    }
+                }
+                if (qtyIndex != -1) {
+                    System.out.print("Enter new quantity: ");
+                    if (sc.hasNextInt()) {
+                        int newQty = sc.nextInt();
+                        sc.nextLine();
+                        if (newQty > 0) {
+                            quantities.set(qtyIndex, newQty);
+                            System.out.println("Quantity updated successfully!");
+                        } else {
+                            System.out.println("Quantity must be greater than 0.");
+                        }
+                    } else {
+                        System.out.println("Invalid quantity!");
+                        sc.nextLine();
+                    }
+                } else {
+                    System.out.println("Item not found!");
+                }
+                break;
+
+            default:
+                System.out.println("Invalid choice.");
+        }
+
+        // Rebuild the receipt after any edit
+        double total = 0;
+        StringBuilder updatedLog = new StringBuilder();
+        updatedLog.append("Date: ").append(LocalDate.now().format(DateTimeFormatter.ofPattern("MM-dd-yyyy"))).append("\n");
+        updatedLog.append("Time: ").append(LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a"))).append("\n");
+        updatedLog.append("Serial Code: ").append("CD-" + (System.currentTimeMillis() % 10000)).append("\n"); // regenerate serial
+        updatedLog.append("Customer: ").append(customerName).append("\n");
+
+        for (int i = 0; i < items.size(); i++) {
+            double subtotal = prices.get(i) * quantities.get(i);
+            total += subtotal;
+            updatedLog.append(items.get(i)).append(" | ")
+                      .append(prices.get(i)).append(" x ")
+                      .append(quantities.get(i)).append(" = ")
+                      .append(subtotal).append("\n");
+        }
+        updatedLog.append("TOTAL: ").append(total);
+
+        log.setLength(0);
+        System.out.println("-------------------------------------");
+        log.append(updatedLog.toString());
+        System.out.println("-------------------------------------");
+
+        System.out.println("\n==== UPDATED RECEIPT ====");
+        System.out.println("-------------------------------------");
+        System.out.println(log.toString());
+    }
+
+    return log;
+
+    }
+}
